@@ -5,7 +5,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: './', // Menambahkan base relative untuk kompatibilitas GitHub Pages
+    base: '/tahfidz-v2/', // Menambahkan base path repository untuk GitHub Pages
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
