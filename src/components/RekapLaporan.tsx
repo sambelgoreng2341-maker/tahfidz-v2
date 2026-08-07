@@ -174,12 +174,22 @@ export default function RekapLaporan({ appState, onSetState }: Props) {
         </div>
       )}
 
-      {(rekapType === 'bulanan' || rekapType === 'kustom') && (
+      {(rekapType === 'mingguan' || rekapType === 'bulanan' || rekapType === 'kustom') && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <h3 className="text-base font-bold text-slate-800">Rekapitulasi Kehadiran</h3>
             <span className="text-xs bg-emerald-50 text-emerald-700 px-3.5 py-1.5 rounded-full font-bold">
-              {rekapType === 'bulanan' ? new Date(rekapSelectedDate).toLocaleDateString('id-ID', {month: 'long', year:'numeric'}) : `${formatShortDate(rekapStartDate)} - ${formatShortDate(rekapEndDate)}`}
+              {rekapType === 'bulanan' ? new Date(rekapSelectedDate).toLocaleDateString('id-ID', {month: 'long', year:'numeric'}) : 
+               rekapType === 'mingguan' ? (() => {
+                 const d = new Date(rekapSelectedDate);
+                 const day = d.getDay() || 7;
+                 const start = new Date(d);
+                 start.setDate(d.getDate() - day + 1);
+                 const end = new Date(d);
+                 end.setDate(d.getDate() - day + 7);
+                 return `${formatShortDate(start.toISOString().split('T')[0])} - ${formatShortDate(end.toISOString().split('T')[0])}`;
+               })()
+               : `${formatShortDate(rekapStartDate)} - ${formatShortDate(rekapEndDate)}`}
             </span>
           </div>
           <div className="overflow-x-auto">
@@ -206,6 +216,17 @@ export default function RekapLaporan({ appState, onSetState }: Props) {
                   if (rekapType === 'bulanan') {
                     const d = new Date(rekapSelectedDate);
                     activeLogs = activeLogs.filter(l => new Date(l.tanggal).getMonth() === d.getMonth() && new Date(l.tanggal).getFullYear() === d.getFullYear());
+                  } else if (rekapType === 'mingguan') {
+                    const d = new Date(rekapSelectedDate);
+                    const day = d.getDay() || 7;
+                    const start = new Date(d);
+                    start.setDate(d.getDate() - day + 1);
+                    const end = new Date(d);
+                    end.setDate(d.getDate() - day + 7);
+                    
+                    const startStr = start.toISOString().split('T')[0];
+                    const endStr = end.toISOString().split('T')[0];
+                    activeLogs = activeLogs.filter(l => l.tanggal >= startStr && l.tanggal <= endStr);
                   } else {
                     activeLogs = activeLogs.filter(l => l.tanggal >= rekapStartDate && l.tanggal <= rekapEndDate);
                   }
